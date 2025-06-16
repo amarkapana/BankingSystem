@@ -1,6 +1,8 @@
 import java.nio.file.*;
 import java.sql.*;
 
+import db.DBConnection;
+
 public class SchemaLoader {
     public static void main(String[] args) {
         try {

@@ -1,33 +1,32 @@
--- schema.sql
-
 CREATE DATABASE IF NOT EXISTS banking_app;
 USE banking_app;
 
-CREATE TABLE accounts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(256) NOT NULL,
-    balance DOUBLE DEFAULT 0.0
+-- Users table stores login credentials
+-- In your schema.sql file, modify the users table:
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  pin VARCHAR(255) NOT NULL,
+  -- Add these new columns:
+  account_locked BOOLEAN DEFAULT FALSE,
+  lock_time TIMESTAMP NULL,
+  failed_attempts INT DEFAULT 0
 );
 
-CREATE TABLE transactions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    account_id INT NOT NULL,
-    type VARCHAR(50),
-    amount DOUBLE,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (account_id) REFERENCES accounts(id)
+-- Accounts table stores financial info (no pin column needed)
+CREATE TABLE IF NOT EXISTS accounts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  balance DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+  FOREIGN KEY (username) REFERENCES users(username)
 );
 
--- Sample data
-INSERT INTO accounts (username, password, balance)
-VALUES 
-('amar', 'amar@123', 5000.0),
-('kiran', 'kiran@123', 10000.0);
-
-INSERT INTO transactions (account_id, type, amount)
-VALUES
-(1, 'DEPOSIT', 2000),
-(1, 'WITHDRAW', 1000),
-(2, 'DEPOSIT', 500),
-(2, 'WITHDRAW', 200);
+-- Transactions table
+CREATE TABLE IF NOT EXISTS transactions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) NOT NULL,
+  type ENUM('DEPOSIT', 'WITHDRAW') NOT NULL,
+  amount DECIMAL(15,2) NOT NULL,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (username) REFERENCES users(username)
+);

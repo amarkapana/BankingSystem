@@ -1,3 +1,4 @@
+package model;
 public class Transaction {
     private int id;
     private int accountId;

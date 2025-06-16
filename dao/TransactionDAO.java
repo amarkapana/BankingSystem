@@ -1,37 +1,39 @@
+package dao;
+import db.DBConnection;
+import model.Transaction;
+
 import java.sql.*;
-import java.util.*;
+import java.util.List;
 
 public class TransactionDAO {
-    public void addTransaction(Transaction t) {
-        String sql = "INSERT INTO transactions (account_id, type, amount) VALUES (?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, t.getAccountId());
-            stmt.setString(2, t.getType());
-            stmt.setDouble(3, t.getAmount());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("[ERROR] Add transaction failed: " + e.getMessage());
+    public static String getMiniStatement(String username) {
+        StringBuilder sb = new StringBuilder();
+        try(Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM transactions WHERE username=? ORDER BY date DESC LIMIT 5")) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()) {
+                sb.append(rs.getString("date"))
+                  .append(" - ")
+                  .append(rs.getString("type"))
+                  .append(" - ")
+                  .append(rs.getDouble("amount"))
+                  .append("\n");
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+            sb.append("Error fetching mini statement.");
         }
+        return sb.toString();
     }
 
     public List<Transaction> getLast5(int accountId) {
-        List<Transaction> list = new ArrayList<>();
-        String sql = "SELECT * FROM transactions WHERE account_id = ? ORDER BY timestamp DESC LIMIT 5";
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, accountId);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                list.add(new Transaction(
-                    rs.getInt("id"),
-                    rs.getInt("account_id"),
-                    rs.getString("type"),
-                    rs.getDouble("amount"),
-                    rs.getString("timestamp")
-                ));
-            }
-        } catch (SQLException e) {
-            System.out.println("[ERROR] Fetch transactions failed: " + e.getMessage());
-        }
-        return list;
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getLast5'");
+    }
+
+    public void addTransaction(Transaction transaction) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addTransaction'");
     }
 }
