@@ -7,15 +7,24 @@ A complete desktop-based Java banking system with GUI, supporting customer and a
 ## 📁 Project Structure
 
 BankingSystem/
-├── dao/ # Data access layer (UserDAO, AccountDAO, TransactionDAO)
-├── model/ # Java models (User, Account, Transaction)
-├── service/ # Business logic (AccountLockService, BankingService)
-├── ui/ # User Interface (ATM_GUI, AdminGUI, MainMenu)
-├── util/ # Utilities (SecurityUtil, AuditLogger, etc.)
-├── db/ # DBConnection.java (MySQL config)
-├── schema.sql # SQL script to create tables
-├── audit.log # Activity log file
-└── lib/ # MySQL JDBC driver
+├── dao/ 
+# Data access layer (UserDAO, AccountDAO, TransactionDAO)
+├── model/
+# Java models (User, Account, Transaction)
+├── service/ 
+# Business logic (AccountLockService, BankingService)
+├── ui/
+# User Interface (ATM_GUI, AdminGUI, MainMenu)
+├── util/
+# Utilities (SecurityUtil, AuditLogger, etc.)
+├── db/ 
+# DBConnection.java (MySQL config)
+├── schema.sql
+# SQL script to create tables
+├── audit.log
+# Activity log file
+└── lib/ 
+# MySQL JDBC driver
 
 
 ## ✅ Features
