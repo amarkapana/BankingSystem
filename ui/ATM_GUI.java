@@ -1,3 +1,4 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import dao.AccountDAO;
@@ -7,43 +8,71 @@ import model.Account;
 import util.SecurityUtil;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.sql.*;
+import java.awt.image.BufferedImage;
 
 public class ATM_GUI extends JFrame {
     private JTextField usernameField;
     private JPasswordField pinField;
     private JButton loginButton, registerButton;
+    private BufferedImage atmImage;
 
     public ATM_GUI() {
         setTitle("ATM Machine");
-        setSize(400, 300);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
+        
+        // Load ATM background
+        try {
+            atmImage = ImageIO.read(new File("atm_placeholder.jpg"));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Failed to load ATM image");
+            System.exit(1);
+        }
 
-        // Center panel for inputs
-        JPanel centerPanel = new JPanel(new GridLayout(3, 2, 10, 10));
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        centerPanel.add(new JLabel("Username:"));
+        // Create layered pane
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(800, 600));
+
+        // Background panel with image
+        JPanel bgPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(atmImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        bgPanel.setBounds(0, 0, 800, 600);
+        layeredPane.add(bgPanel, JLayeredPane.DEFAULT_LAYER);
+
+        // Login components (position over image)
+        JPanel loginPanel = new JPanel();
+        loginPanel.setOpaque(false); // Transparent
+        loginPanel.setLayout(new GridLayout(3, 2, 10, 10));
+        loginPanel.setBounds(180, 180, 300, 150); // Adjust position as needed
+
+        loginPanel.add(new JLabel("Username:"));
         usernameField = new JTextField();
-        centerPanel.add(usernameField);
-        centerPanel.add(new JLabel("PIN:"));
+        loginPanel.add(usernameField);
+
+        loginPanel.add(new JLabel("PIN:"));
         pinField = new JPasswordField();
-        centerPanel.add(pinField);
-        add(centerPanel, BorderLayout.CENTER);
+        loginPanel.add(pinField);
 
-        // Bottom panel for buttons
-        JPanel buttonPanel = new JPanel();
         loginButton = new JButton("Login");
-        registerButton = new JButton("Register");
-        buttonPanel.add(loginButton);
-        buttonPanel.add(registerButton);
-        add(buttonPanel, BorderLayout.SOUTH);
+        loginPanel.add(loginButton);
 
-        // Button actions
+        registerButton = new JButton("Register");
+        loginPanel.add(registerButton);
+
+        layeredPane.add(loginPanel, JLayeredPane.PALETTE_LAYER);
+        add(layeredPane);
+
+        // Button actions (use your existing methods)
         loginButton.addActionListener(e -> login());
         registerButton.addActionListener(e -> register());
     }
-
     private void login() {
     String username = usernameField.getText().trim();
     String pin = new String(pinField.getPassword()).trim();

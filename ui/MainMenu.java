@@ -1,87 +1,82 @@
-import db.DBConnection;
-import model.Account;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import db.DBConnection;
+import model.Account;
 
 public class MainMenu extends JFrame {
     private Account account;
+    private JLabel balanceLabel;
 
     public MainMenu(Account account) {
         this.account = account;
         initializeUI();
-        setupAdminFeatures();
     }
 
     private void initializeUI() {
-        setTitle("ATM Main Menu - Welcome " + account.getUsername());
+        setTitle("ATM Main Menu");
         setSize(500, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout());
+        getContentPane().setBackground(Color.WHITE);
 
         // Header Panel
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        headerPanel.setBackground(Color.WHITE);
         
         JLabel welcomeLabel = new JLabel("Welcome, " + account.getUsername());
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 18));
         headerPanel.add(welcomeLabel, BorderLayout.WEST);
         
-        JLabel balanceLabel = new JLabel("Current Balance: " + account.getBalance());
+        balanceLabel = new JLabel("Balance: $" + account.getBalance());
         balanceLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         headerPanel.add(balanceLabel, BorderLayout.EAST);
 
         // Button Panel
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
+        buttonPanel.setBackground(Color.WHITE);
 
-        JButton balanceBtn = createStyledButton("Check Balance");
-        JButton depositBtn = createStyledButton("Deposit");
-        JButton withdrawBtn = createStyledButton("Withdraw");
-        JButton miniStmtBtn = createStyledButton("Mini Statement");
-        JButton logoutBtn = createStyledButton("Logout");
+        // Add vertical spacing
+        buttonPanel.add(Box.createVerticalStrut(10));
+        buttonPanel.add(createATMButton("Check Balance", e -> checkBalance()));
+        buttonPanel.add(Box.createVerticalStrut(10));
+        buttonPanel.add(createATMButton("Deposit", e -> deposit()));
+        buttonPanel.add(Box.createVerticalStrut(10));
+        buttonPanel.add(createATMButton("Withdraw", e -> withdraw()));
+        buttonPanel.add(Box.createVerticalStrut(10));
+        buttonPanel.add(createATMButton("Mini Statement", e -> miniStatement()));
+        buttonPanel.add(Box.createVerticalStrut(10));
+        buttonPanel.add(createATMButton("Logout", e -> logout()));
 
-        buttonPanel.add(balanceBtn);
-        buttonPanel.add(depositBtn);
-        buttonPanel.add(withdrawBtn);
-        buttonPanel.add(miniStmtBtn);
-        buttonPanel.add(logoutBtn);
+        // Add admin button if applicable
+        if (isAdmin(account.getUsername())) {
+            buttonPanel.add(Box.createVerticalStrut(10));
+            buttonPanel.add(createATMButton("Admin Dashboard", e -> {
+                this.dispose();
+                new AdminGUI().setVisible(true);
+            }));
+        }
 
         // Add components
         add(headerPanel, BorderLayout.NORTH);
         add(buttonPanel, BorderLayout.CENTER);
-
-        // Event listeners
-        balanceBtn.addActionListener(e -> checkBalance(balanceLabel));
-        depositBtn.addActionListener(e -> deposit(balanceLabel));
-        withdrawBtn.addActionListener(e -> withdraw(balanceLabel));
-        miniStmtBtn.addActionListener(e -> miniStatement());
-        logoutBtn.addActionListener(e -> logout());
-
-        // Center window
-        setLocationRelativeTo(null);
     }
 
-    private JButton createStyledButton(String text) {
+    private JButton createATMButton(String text, ActionListener action) {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setMaximumSize(new Dimension(200, 40));
         button.setBackground(new Color(70, 130, 180));
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(150, 40));
+        button.addActionListener(action);
         return button;
-    }
-
-    private void setupAdminFeatures() {
-        if (isAdmin(account.getUsername())) {
-            JButton adminBtn = createStyledButton("Admin Dashboard");
-            adminBtn.addActionListener(e -> {
-                this.dispose();
-                new AdminGUI().setVisible(true);
-            });
-            ((JPanel)getContentPane().getComponent(1)).add(adminBtn);
-        }
     }
 
     private boolean isAdmin(String username) {
@@ -97,7 +92,7 @@ public class MainMenu extends JFrame {
         }
     }
 
-    private void checkBalance(JLabel balanceLabel) {
+    private void checkBalance() {
         try (Connection conn = DBConnection.getConnection()) {
             String sql = "SELECT balance FROM accounts WHERE username = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -107,9 +102,9 @@ public class MainMenu extends JFrame {
             if (rs.next()) {
                 double balance = rs.getDouble("balance");
                 account.setBalance(balance);
-                balanceLabel.setText("Current Balance: " + balance);
+                balanceLabel.setText("Balance: $" + balance);
                 JOptionPane.showMessageDialog(this, 
-                    "Your current balance: " + balance,
+                    "Your current balance: $" + balance,
                     "Balance", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (SQLException ex) {
@@ -117,7 +112,7 @@ public class MainMenu extends JFrame {
         }
     }
 
-    private void deposit(JLabel balanceLabel) {
+    private void deposit() {
         String amtStr = JOptionPane.showInputDialog(this, "Enter deposit amount:");
         if (amtStr == null || amtStr.trim().isEmpty()) return;
         
@@ -149,9 +144,9 @@ public class MainMenu extends JFrame {
                 
                 // Update local account balance
                 account.setBalance(account.getBalance() + amount);
-                balanceLabel.setText("Current Balance: " + account.getBalance());
+                balanceLabel.setText("Balance: $" + account.getBalance());
                 JOptionPane.showMessageDialog(this, 
-                    "Deposit successful!\nNew balance: " + account.getBalance(),
+                    "Deposit successful!\nNew balance: $" + account.getBalance(),
                     "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (SQLException ex) {
                 showError("Deposit failed: " + ex.getMessage());
@@ -161,7 +156,7 @@ public class MainMenu extends JFrame {
         }
     }
 
-    private void withdraw(JLabel balanceLabel) {
+    private void withdraw() {
         String amtStr = JOptionPane.showInputDialog(this, "Enter withdrawal amount:");
         if (amtStr == null || amtStr.trim().isEmpty()) return;
         
@@ -202,9 +197,9 @@ public class MainMenu extends JFrame {
                         
                         // Update local account balance
                         account.setBalance(currentBalance - amount);
-                        balanceLabel.setText("Current Balance: " + account.getBalance());
+                        balanceLabel.setText("Balance: $" + account.getBalance());
                         JOptionPane.showMessageDialog(this, 
-                            "Withdrawal successful!\nNew balance: " + account.getBalance(),
+                            "Withdrawal successful!\nNew balance: $" + account.getBalance(),
                             "Success", JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         conn.rollback();
