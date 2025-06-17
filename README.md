@@ -7,6 +7,7 @@ A complete desktop-based Java banking system with GUI, supporting customer and a
 ## 📁 Project Structure
 
 BankingSystem/
+
 ├── dao/ # Data access layer (UserDAO, AccountDAO, TransactionDAO)
 
 ├── model/ # Java models (User, Account, Transaction)
