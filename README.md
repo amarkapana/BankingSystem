@@ -74,8 +74,9 @@ BankingSystem/
 
 ## 📸 Screenshots
 
-> ATM Login GUI  
->![image](https://github.com/user-attachments/assets/0c674410-ac82-4a4b-8647-756235466954)
+> ATM Login GUI
+> ![image](https://github.com/user-attachments/assets/03cade6c-c927-4a13-91e8-1281e30f6b7d)
+
 > ![image](https://github.com/user-attachments/assets/3b8f393d-a030-4109-b5b2-cf3a66b616e5)
 > ![image](https://github.com/user-attachments/assets/28a58072-1a52-407a-bba8-0a458d84f056)
 > ![image](https://github.com/user-attachments/assets/1e8b44d8-9f39-47fd-8660-00b9c686a4b0)
